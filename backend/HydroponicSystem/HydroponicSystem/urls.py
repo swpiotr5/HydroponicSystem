@@ -14,9 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
+
+from HydroponicSystem_systems.routers import router as systems_routers
+from HydroponicSystem_systems import urls as systems_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    path('', include( systems_routers.urls)),
+    path('', include( systems_urls)),
 ]
