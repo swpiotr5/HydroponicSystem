@@ -43,7 +43,7 @@ A CRUD application in Django that enables management hydroponic system
 
 4. Run tests
     ```bash
-    docker exec -it hydroponicsystem-backend-1 pytest
+    docker exec -it backend-backend-1 pytest
     ```
 
 ## Address API:
