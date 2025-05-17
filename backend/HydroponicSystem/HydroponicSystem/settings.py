@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'HydroponicSystem_authentication',
+    'HydroponicSystem_systems',
 ]
 
 REST_FRAMEWORK = {
