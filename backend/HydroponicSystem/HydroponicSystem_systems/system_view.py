@@ -1,13 +1,31 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from .models import HydroponicSystem, Measurement
 from .serializers import HydroponicSystemSerializer, MeasurementSerializer
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter, inline_serializer
 from datetime import datetime
-from .models import HydroponicSystem, Measurement
 from django.db.models import Q
+
+# Inline serializer do błędów odpowiedzi
+ErrorResponseSerializer = inline_serializer(
+    name="ErrorResponse",
+    fields={
+        "detail": serializers.CharField()
+    }
+)
+
+# Inline serializer dla listy z paginacją
+PaginatedHydroponicSystemListSerializer = inline_serializer(
+    name="PaginatedHydroponicSystemList",
+    fields={
+        "count": serializers.IntegerField(),
+        "next": serializers.CharField(allow_null=True),
+        "previous": serializers.CharField(allow_null=True),
+        "results": HydroponicSystemSerializer(many=True)
+    }
+)
 
 class HydroponicSystemViewSet(viewsets.ModelViewSet):
     serializer_class = HydroponicSystemSerializer
@@ -21,7 +39,20 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
         request=HydroponicSystemSerializer,
         responses={
             201: HydroponicSystemSerializer,
-            400: OpenApiResponse(description="Bad Request")
+            400: OpenApiResponse(
+                description="Validation error",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Example error response",
+                        value={
+                            "name": ["This field is required."],
+                            "location": ["This field may not be blank."]
+                        },
+                        status_codes=["400"]
+                    )
+                ]
+            ),
         },
         examples=[
             OpenApiExample(
@@ -39,7 +70,7 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
                     "owner": 4
                 },
                 response_only=True,
-            )
+            ),
         ]
     )
     def create(self, request):
@@ -53,11 +84,37 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
         summary="Retrieve a hydroponic system with latest measurements",
         responses={
             200: OpenApiResponse(
-                response=None,
-                description="Hydroponic system details and latest measurements"
+                description="Hydroponic system details and latest measurements",
+                response=inline_serializer(
+                    name="HydroponicSystemWithMeasurements",
+                    fields={
+                        "hydroponic_system": HydroponicSystemSerializer(),
+                        "latest_measurements": MeasurementSerializer(many=True),
+                    }
+                )
             ),
-            403: OpenApiResponse(description="Forbidden"),
-            404: OpenApiResponse(description="Not Found"),
+            403: OpenApiResponse(
+                description="Forbidden",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Permission denied",
+                        value={"detail": "You do not have access to this resource."},
+                        status_codes=["403"]
+                    )
+                ]
+            ),
+            404: OpenApiResponse(
+                description="Not Found",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Not found",
+                        value={"detail": "Not found."},
+                        status_codes=["404"]
+                    )
+                ]
+            )
         },
         examples=[
             OpenApiExample(
@@ -102,15 +159,44 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
 
         return Response(response_data, status=status.HTTP_200_OK)
 
-
     @extend_schema(
         summary="Update a hydroponic system",
         request=HydroponicSystemSerializer,
         responses={
             200: HydroponicSystemSerializer,
-            400: OpenApiResponse(description="Bad Request"),
-            403: OpenApiResponse(description="Forbidden"),
-            404: OpenApiResponse(description="Not Found"),
+            400: OpenApiResponse(
+                description="Bad Request",
+                response=ErrorResponseSerializer,
+                 examples=[
+                    OpenApiExample(
+                        "Invalid date format",
+                        value={"detail": "Invalid date format. Expected format: YYYY-MM-DD."},
+                        status_codes=["400"]
+                    ),
+                ]
+            ),
+            403: OpenApiResponse(
+                description="Forbidden",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Permission denied",
+                        value={"detail": "You cannot edit this resource."},
+                        status_codes=["403"]
+                    )
+                ]
+            ),
+            404: OpenApiResponse(
+                description="Not Found",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Not found",
+                        value={"detail": "Not found."},
+                        status_codes=["404"]
+                    )
+                ]
+            ),
         },
         examples=[
             OpenApiExample(
@@ -143,21 +229,43 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
     @extend_schema(
         summary="Delete a hydroponic system",
         responses={
-            204: OpenApiResponse(description="Successfully deleted the hydroponic system."),
-            403: OpenApiResponse(description="Forbidden - user is not the owner."),
-            404: OpenApiResponse(description="Hydroponic system not found."),
+            204: OpenApiResponse(
+                description="Successfully deleted the hydroponic system.",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Example Response",
+                        value={"message": "Hydroponic system has been removed."},
+                        response_only=True,
+                    )
+                ]
+            ),
+            403: OpenApiResponse(
+                description="Forbidden - user is not the owner.",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Permission denied",
+                        value={"detail": "You cannot delete this resource."},
+                        status_codes=["403"]
+                    )
+                ]
+            ),
+            404: OpenApiResponse(
+                description="Hydroponic system not found.",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Not found",
+                        value={"detail": "Not found."},
+                        status_codes=["404"]
+                    )
+                ]
+            ),
         },
-        examples=[
-            OpenApiExample(
-                "Example Response",
-                value={"message": "Hydroponic system has been removed."},
-                response_only=True,
-            )
-        ]
     )
     def destroy(self, request, pk=None):
         hydroponic_system = self.get_object()
@@ -177,8 +285,26 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
             OpenApiParameter(name="sort_order", type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description="Sorting order: 'asc' or 'desc' (default: asc)"),
         ],
         responses={
-            200: OpenApiResponse(description="List of hydroponic systems."),
-            400: OpenApiResponse(description="Bad Request - invalid query parameter."),
+            200: OpenApiResponse(
+                description="List of hydroponic systems.",
+                response=PaginatedHydroponicSystemListSerializer,
+            ),
+            400: OpenApiResponse(
+                description="Bad Request - invalid query parameter.",
+                response=ErrorResponseSerializer,
+                examples=[
+                    OpenApiExample(
+                        "Invalid date format",
+                        value={"detail": "Invalid date format. Expected format: YYYY-MM-DD."},
+                        status_codes=["400"]
+                    ),
+                    OpenApiExample(
+                        "Invalid sort order",
+                        value={"detail": "Invalid value for 'sort_order'. Use 'asc' or 'desc'."},
+                        status_codes=["400"]
+                    )
+                ]
+            ),
         },
         examples=[
             OpenApiExample(
@@ -225,10 +351,10 @@ class HydroponicSystemViewSet(viewsets.ModelViewSet):
 
             try:
                 if created_after:
-                    filters &= Q(timestamp__gte=datetime.strptime(created_after, "%Y-%m-%d"))
+                    filters &= Q(created_at__gte=datetime.strptime(created_after, "%Y-%m-%d"))
 
                 if created_before:
-                    filters &= Q(timestamp__lte=datetime.strptime(created_before, "%Y-%m-%d"))
+                    filters &= Q(created_at__lte=datetime.strptime(created_before, "%Y-%m-%d"))
             except ValueError:
                 return Response(
                     {"detail": "Invalid date format. Expected format: YYYY-MM-DD."},
