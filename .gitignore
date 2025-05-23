@@ -1,0 +1,8 @@
+__pycache__
+venv
+migrations
+db.env
+.env
+data
+HydroponicSystem
+.\frontend\node_modules
