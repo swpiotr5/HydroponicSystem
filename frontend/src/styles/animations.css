@@ -1,0 +1,282 @@
+@keyframes party {
+  0% { background-color: #ff0000; }
+  25% { background-color: #00ff00; }
+  50% { background-color: #0000ff; }
+  75% { background-color: #ffff00; }
+  100% { background-color: #ff0000; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.party-mode {
+  animation: party 2s infinite;
+}
+
+.party-mode .card {
+  animation: shake 0.5s infinite;
+}
+
+.chart-container {
+  transition: transform 0.3s ease;
+}
+
+.chart-container:hover {
+  transform: scale(1.02);
+}
+
+/* Dark mode specific animations */
+.bg-secondary .chart-container {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Loading animation enhancement */
+.spinner-border {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Interactive table rows */
+.table tbody tr {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  transform: translateX(5px);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Button animations */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Chart tooltip animation */
+.chartjs-tooltip {
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.chartjs-tooltip.show {
+  opacity: 1;
+}
+
+/* Ripple Effect */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(0, 200, 83, 0.3);
+  width: 100px;
+  height: 100px;
+  margin-left: -50px;
+  margin-top: -50px;
+  animation: ripple 1s ease-out;
+  pointer-events: none;
+}
+
+.ripple-dark {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Enhanced card hover effect */
+.card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4caf50;
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #66bb6a;
+}
+
+/* Loading message animation */
+.loading-message {
+  animation: fadeInOut 2s infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Chart tooltip enhancements */
+.chartjs-tooltip {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 10px;
+  transform-origin: center top;
+  animation: tooltipPop 0.2s ease;
+}
+
+.dark .chartjs-tooltip {
+  background: rgba(33, 37, 41, 0.95);
+  color: white;
+}
+
+@keyframes tooltipPop {
+  from {
+    transform: scale(0.9) translateY(-5px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Easter Egg Animations */
+
+/* Matrix Mode */
+.matrix-mode {
+  background-color: #000;
+  color: #00ff00 !important;
+  font-family: 'Courier New', monospace;
+  position: relative;
+}
+
+.matrix-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(0,255,0,0.1) 50%, transparent 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: matrix-scan 10s linear infinite;
+}
+
+@keyframes matrix-scan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+/* Thug Life Mode */
+.thug-life {
+  filter: contrast(150%) brightness(110%) saturate(130%);
+}
+
+.thug-life::after {
+  content: '😎';
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 50px;
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Barrel Roll */
+.barrel-roll {
+  animation: barrelRoll 1s linear forwards;
+}
+
+@keyframes barrelRoll {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Disco Mode */
+.disco-mode {
+  animation: discoLight 0.5s linear infinite;
+}
+
+@keyframes discoLight {
+  0% { background-color: #ff0000; }
+  20% { background-color: #00ff00; }
+  40% { background-color: #0000ff; }
+  60% { background-color: #ffff00; }
+  80% { background-color: #ff00ff; }
+  100% { background-color: #ff0000; }
+}
+
+/* Plant Time Mode */
+.plant-time {
+  position: relative;
+  overflow: hidden;
+}
+
+.plant-time::before {
+  content: '🌿';
+  position: fixed;
+  font-size: 40px;
+  animation: rain 3s linear infinite;
+}
+
+@keyframes rain {
+  from {
+    transform: translateY(-100vh) rotate(0deg);
+  }
+  to {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
+
+/* Enhanced loading spinner */
+.spinner-border {
+  position: relative;
+}
+
+.spinner-border::after {
+  content: '🌱';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2em;
+  animation: grow 2s ease-in-out infinite;
+}
+
+@keyframes grow {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.2); }
+}
